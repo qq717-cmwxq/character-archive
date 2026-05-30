@@ -66,29 +66,35 @@
         .info-p b { width: 140px; flex-shrink: 0; color: #666; }
 
         /* --- 五大风格 UI --- */
+        /* 1. Archive 马卡龙档案 */
         .style-archive { background: var(--m-yellow); padding: 50px; color: var(--text); }
         .style-archive .inner { background: white; border-radius: 30px; padding: 40px; border: 10px solid var(--m-green); }
         .style-archive .portrait-wrapper { border-radius: 20px; border: 5px solid var(--m-green); margin: 0 auto 20px; }
 
+        /* 2. Wanted 通缉令 */
         .style-wanted { background: #e3c9a6; padding: 50px; color: #432b1d; border: 25px solid #432b1d; text-align: center; }
         .style-wanted .header { font-family: 'Impact', fantasy; font-size: 110px; border-bottom: 8px solid #432b1d; margin-bottom: 20px; }
         .style-wanted .portrait-wrapper { width: 450px; height: 450px; margin: 0 auto; border: 10px solid #432b1d; filter: sepia(0.5) contrast(1.2); }
         .style-wanted .reward { font-family: Impact; font-size: 60px; margin: 30px 0; border-top: 5px solid #432b1d; border-bottom: 5px solid #432b1d; }
         .style-wanted .info-box { text-align: left; font-family: serif; font-weight: bold; }
 
+        /* 3. Cyber ID 证件 */
         .style-id { background: #0b0e14; color: #00ffcc; padding: 40px; font-family: 'Courier New', Courier, monospace; }
         .style-id .portrait-wrapper { border: 2px solid #00ffcc; float: right; width: 180px; height: 220px; }
         .style-id .block-title { border-color: #00ffcc; color: #ff00ff; }
 
+        /* 4. Journal 手账 */
         .style-journal { background: white; padding: 50px; border: 2px solid var(--m-pink); }
         .style-journal .tape { width: 120px; height: 40px; background: rgba(255, 209, 220, 0.5); position: absolute; transform: rotate(-5deg); top: 20px; left: 40%; }
         .style-journal .block-title { color: #ff7675; border-bottom: 2px dashed var(--m-pink); }
 
+        /* 5. Bauhaus 极简 */
         .style-bauhaus { display: grid; grid-template-columns: 300px 1fr; background: white; min-height: 100%; }
         .style-bauhaus .side { background: #000; color: #fff; padding: 40px; }
         .style-bauhaus .main { padding: 60px; color: #000; }
         .style-bauhaus .block-title { border-bottom: 4px solid #000; font-size: 24px; font-weight: 900; }
 
+        /* 弹窗 */
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; justify-content:center; align-items:center; }
         .modal-content { background:white; padding:30px; border-radius:20px; width:800px; max-width:90%; }
         
@@ -99,7 +105,7 @@
 <body>
 
 <header>
-    <div class="logo">🧸 Character Profile Studio <span style="font-size:12px; opacity:0.6">V7.0</span></div>
+    <div class="logo">🧸 Character Profile Studio <span style="font-size:12px; opacity:0.6">V6.5</span></div>
     <div style="display:flex; gap:10px">
         <button class="btn btn-p" onclick="document.getElementById('import-modal').style.display='flex'">💡 导入人设 (YAML)</button>
         <button class="btn btn-p" style="background:#4A90E2" onclick="exportYAML()">📤 导出纯英文 YAML</button>
@@ -110,11 +116,13 @@
 <main>
     <!-- 左侧编辑器 -->
     <aside class="editor-side">
+        <!-- 照片 -->
         <div class="section-box">
             <h3>Image 形象上传</h3>
             <input type="file" accept="image/*" onchange="loadAvatar(this)">
         </div>
 
+        <!-- char_name -->
         <div class="section-box">
             <h3>char_name 核心信息</h3>
             <div class="field-item"><label class="label-wrap">Chinese name <span class="label-zh">中文名</span></label><input type="text" data-p="char_name.Chinese_name"></div>
@@ -131,6 +139,7 @@
             </div>
         </div>
 
+        <!-- background_story -->
         <div class="section-box">
             <h3>background_story 背景故事</h3>
             <div class="field-item"><label class="label-wrap">童年(0-12岁)</label><textarea data-p="background_story.童年"></textarea></div>
@@ -140,12 +149,14 @@
             <div class="field-item"><label class="label-wrap">现状</label><textarea data-p="background_story.现状"></textarea></div>
         </div>
 
+        <!-- social_status -->
         <div class="section-box">
             <h3>social_status 社会地位</h3>
             <div id="list-social_status" class="dynamic-list"></div>
             <button class="btn-mini btn-add" onclick="addList('social_status')">+ 添加地位标签</button>
         </div>
 
+        <!-- appearance -->
         <div class="section-box">
             <h3>appearance 外貌特征</h3>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
@@ -161,6 +172,7 @@
             </div>
         </div>
 
+        <!-- attire -->
         <div class="section-box">
             <h3>attire 穿着</h3>
             <input type="text" data-p="attire.business_formal" placeholder="商务正装" class="field-item">
@@ -169,6 +181,7 @@
             <input type="text" data-p="attire.home_wear" placeholder="居家穿着" class="field-item">
         </div>
 
+        <!-- personality -->
         <div class="section-box">
             <h3>personality 性格</h3>
             <input type="text" data-p="archetype" placeholder="archetype 角色原型" class="field-item">
@@ -180,6 +193,7 @@
             <button class="btn-mini btn-add" onclick="addTrait('romantic_traits')">+ 添加情感性格</button>
         </div>
 
+        <!-- behaviors -->
         <div class="section-box">
             <h3>Behaviors 行为</h3>
             <label class="label-wrap">lifestyle_behaviors <span class="label-zh">生活习惯</span></label>
@@ -195,6 +209,7 @@
             </div>
         </div>
 
+        <!-- 缺失板块补充 -->
         <div class="section-box">
             <h3>Social & Others 社交与其它</h3>
             <label class="label-wrap">goals <span class="label-zh">目标</span></label>
@@ -209,11 +224,12 @@
             <div id="list-history" class="dynamic-list"></div>
             <button class="btn-mini btn-add" onclick="addList('history')">+ 添加经历</button>
             <hr>
-            <div class="field-item"><label class="label-wrap">weakness <span class="label-zh">缺点</span></label><textarea data-p="weakness" placeholder="每行一条"></textarea></div>
-            <div class="field-item"><label class="label-wrap">likes <span class="label-zh">喜欢</span></label><textarea data-p="likes" placeholder="每行一条"></textarea></div>
-            <div class="field-item"><label class="label-wrap">dislikes <span class="label-zh">厌恶</span></label><textarea data-p="dislikes" placeholder="每行一条"></textarea></div>
+            <div class="field-item"><label class="label-wrap">weakness <span class="label-zh">缺点</span></label><textarea data-p="weakness" placeholder="回车分隔"></textarea></div>
+            <div class="field-item"><label class="label-wrap">likes <span class="label-zh">喜欢</span></label><textarea data-p="likes" placeholder="回车分隔"></textarea></div>
+            <div class="field-item"><label class="label-wrap">dislikes <span class="label-zh">厌恶</span></label><textarea data-p="dislikes" placeholder="回车分隔"></textarea></div>
         </div>
 
+        <!-- skills 嵌套格式 -->
         <div class="section-box">
             <h3>skills 技能 (分类列表)</h3>
             <div class="field-item"><label class="label-wrap">工作技能</label><textarea id="skill-work" placeholder='["技能1", "描述1"]'></textarea></div>
@@ -221,6 +237,7 @@
             <div class="field-item"><label class="label-wrap">爱好技能</label><textarea id="skill-hobby"></textarea></div>
         </div>
 
+        <!-- NSFW -->
         <div class="section-box" style="background:#fff0f0">
             <h3>NSFW_information 隐私信息</h3>
             <input type="text" data-p="nsfw.exp" placeholder="性经历 experiences" class="field-item">
@@ -236,6 +253,7 @@
         <button class="btn btn-p" style="width:100%; font-size:18px" onclick="refreshRender()">生成人设档案 ✨</button>
     </aside>
 
+    <!-- 右侧渲染区 -->
     <section class="preview-side">
         <div class="style-bar">
             <span>风格：</span>
@@ -249,11 +267,14 @@
             <button class="btn btn-mini" style="background:#666; color:white" onclick="window.print()">打印 / PDF</button>
         </div>
         <div id="render-container">
-            <div id="profile-canvas"></div>
+            <div id="profile-canvas">
+                <!-- 内容动态生成 -->
+            </div>
         </div>
     </section>
 </main>
 
+<!-- 导入弹窗 -->
 <div id="import-modal" class="modal">
     <div class="modal-content">
         <h3>💡 导入已有档案</h3>
@@ -269,11 +290,12 @@
 <script>
     let avatarBase64 = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect width='200' height='200' fill='%23eee'/%3E%3C/svg%3E";
 
+    // --- 组件逻辑 ---
     function addList(id, val = "") {
         const wrap = document.getElementById('list-' + id);
         const div = document.createElement('div');
         div.className = 'list-row';
-        div.innerHTML = `<input type="text" class="list-input" value="${val.replace(/"/g, '')}"><button class="btn-mini btn-del" onclick="this.parentElement.remove()">X</button>`;
+        div.innerHTML = `<input type="text" class="list-input" value="${val}"><button class="btn-mini btn-del" onclick="this.parentElement.remove()">X</button>`;
         wrap.appendChild(div);
     }
 
@@ -301,182 +323,79 @@
         }
     }
 
-    // ============================================================
-    // 核心修复：智能导入函数 (V7.0)
-    // ============================================================
+    // --- 核心解析引擎 (智能适配 江牧 模板) ---
     function doSmartImport() {
         const raw = document.getElementById('import-area').value;
         const lines = raw.split('\n');
         
-        // 重置所有动态列表
+        // 重置列表
         document.querySelectorAll('.dynamic-list').forEach(l => l.innerHTML = "");
-        // 重置所有输入框和文本域
-        document.querySelectorAll('input[data-p], textarea[data-p]').forEach(el => {
-            if (el.type !== 'file') el.value = "";
-        });
-        document.getElementById('skill-work').value = "";
-        document.getElementById('skill-life').value = "";
-        document.getElementById('skill-hobby').value = "";
-        
-        let currentSection = [];
-        let currentList = null;
-        let tempRel = {};
-        let tempTrait = null;
-        let inMultiline = false;
-        let multilineBuffer = "";
-        let multilineTarget = null;
 
-        for (let i = 0; i < lines.length; i++) {
-            let line = lines[i];
-            if (line.trim() === "") continue;
-            
-            let indent = line.search(/\S/);
-            let trimmed = line.trim();
-            
-            // 处理多行文本续行（如描述跨多行）
-            if (inMultiline && multilineTarget && !trimmed.match(/^[a-zA-Z_]+:/) && !trimmed.startsWith('-')) {
-                multilineBuffer += " " + trimmed;
-                if (trimmed.endsWith('"') || (i+1 < lines.length && lines[i+1].trim().match(/^[a-zA-Z_]+:/))) {
-                    if (multilineTarget.tagName === 'TEXTAREA' || multilineTarget.tagName === 'INPUT') {
-                        multilineTarget.value = multilineBuffer.replace(/^["']|["']$/g, '').trim();
-                    }
-                    inMultiline = false;
-                    multilineBuffer = "";
-                    multilineTarget = null;
-                }
-                continue;
-            }
-            
-            // 处理新的节
-            let sectionMatch = trimmed.match(/^([a-zA-Z_]+):$/);
-            if (sectionMatch) {
-                currentSection = [sectionMatch[1]];
-                currentList = null;
-                continue;
-            }
-            
-            // 处理键值对
-            let kvMatch = trimmed.match(/^([a-zA-Z_ \u4e00-\u9fa5]+):\s*(.*)$/);
-            if (kvMatch && !trimmed.startsWith('-')) {
-                let key = kvMatch[1].trim();
-                let value = kvMatch[2].trim().replace(/^["']|["']$/g, '');
-                
-                currentList = key;
-                
-                const fieldMapping = {
-                    "Chinese name": "char_name.Chinese_name",
-                    "Nickname": "char_name.Nickname",
-                    "age": "char_name.age",
-                    "gender": "char_name.gender",
-                    "height": "char_name.height",
-                    "童年(0-12岁)": "background_story.童年",
-                    "少年(13-18岁)": "background_story.少年",
-                    "青年(19-35岁)": "background_story.青年",
-                    "中年(35-至今)": "background_story.中年",
-                    "现状": "background_story.现状",
-                    "hair": "appearance.hair",
-                    "eyes": "appearance.eyes",
-                    "skin": "appearance.skin",
-                    "face_style": "appearance.face_style",
-                    "business_formal": "attire.business_formal",
-                    "business_casual": "attire.business_casual",
-                    "casual_wear": "attire.casual_wear",
-                    "home_wear": "attire.home_wear",
-                    "archetype": "archetype",
-                    "angry": "emotional_behaviors.angry",
-                    "happy": "emotional_behaviors.happy",
-                    "experiences": "nsfw.exp",
-                    "sexual_orientation": "nsfw.ori",
-                    "sexual_role": "nsfw.role",
-                    "Kinks": "nsfw.kinks",
-                    "Limits": "nsfw.limits"
-                };
-                
-                if (fieldMapping[key]) {
-                    let targetField = document.querySelector(`[data-p="${fieldMapping[key]}"]`);
-                    if (targetField) {
-                        targetField.value = value;
-                        if (value && (value.startsWith('"') || value.length > 100)) {
-                            inMultiline = true;
-                            multilineBuffer = value;
-                            multilineTarget = targetField;
-                        }
-                    }
-                }
-                continue;
-            }
-            
-            // 处理列表项
-            if (trimmed.startsWith('-')) {
-                let itemValue = trimmed.substring(1).trim();
-                
-                // 技能嵌套格式
-                if (currentSection[0] === 'skills') {
-                    let skillMatch = itemValue.match(/^(工作|生活|爱好):\s*\[?(.*?)\]?$/);
-                    if (skillMatch) {
-                        let skillType = skillMatch[1];
-                        let skillDesc = skillMatch[2].replace(/["']/g, '');
-                        if (skillType === '工作') document.getElementById('skill-work').value = skillDesc;
-                        if (skillType === '生活') document.getElementById('skill-life').value = skillDesc;
-                        if (skillType === '爱好') document.getElementById('skill-hobby').value = skillDesc;
-                    }
-                    continue;
-                }
-                
-                // 人际关系
-                if (currentList === 'relationships') {
-                    let relMatch = itemValue.match(/^([a-zA-Z_]+):\s*(.*)$/);
-                    if (relMatch) {
-                        let relKey = relMatch[1];
-                        let relVal = relMatch[2].trim().replace(/^["']|["']$/g, '').replace(/,$/, '');
-                        if (relKey === 'name') tempRel.n = relVal;
-                        if (relKey === 'relationship') tempRel.r = relVal;
-                        if (relKey === 'description') tempRel.d = relVal;
-                    }
-                    if (i+1 >= lines.length || !lines[i+1].trim().startsWith('    - name')) {
-                        if (tempRel.n) addRel(tempRel.n, tempRel.r || "", tempRel.d || "");
-                        tempRel = {};
-                    }
-                    continue;
-                }
-                
-                // 性格键值对
-                let traitMatch = itemValue.match(/^([^:]+):\s*(.*)$/);
-                if (currentList === 'core_traits' || currentList === 'romantic_traits') {
-                    if (traitMatch) {
-                        let traitKey = traitMatch[1].trim();
-                        let traitVal = traitMatch[2].trim().replace(/^["']|["']$/g, '');
-                        addTrait(currentList, traitKey, traitVal);
-                    }
-                    continue;
-                }
-                
-                // 普通列表项映射
-                const listMap = {
-                    "identity": "identity", "social_status": "social_status", 
-                    "build": "build", "lifestyle_behaviors": "lifestyle_behaviors",
-                    "work_behaviors": "work_behaviors", "goals": "goals",
-                    "shared_history_with_user": "history", "sexual_habits": "sexual_habits"
-                };
-                if (listMap[currentList]) {
-                    addList(listMap[currentList], itemValue.replace(/^["']|["']$/g, ''));
-                }
-                
-                // weakness, likes, dislikes
-                if (currentList === 'weakness' || currentList === 'likes' || currentList === 'dislikes') {
-                    let textarea = document.querySelector(`[data-p="${currentList}"]`);
-                    if (textarea) {
-                        let currentVal = textarea.value;
-                        textarea.value = currentVal ? currentVal + "\n" + itemValue.replace(/^["']|["']$/g, '') : itemValue.replace(/^["']|["']$/g, '');
-                    }
-                }
-                continue;
-            }
-        }
+        let currentSection = "";
         
+        lines.forEach(line => {
+            const trimmed = line.trim();
+            if (!trimmed) return;
+
+            // 1. 简单字段 (Key: Value)
+            const kvMatch = line.match(/^\s*([\w\s\u4e00-\u9fa5\(\)-]+):\s*(.*)$/);
+            if (kvMatch && !trimmed.startsWith('-')) {
+                const k = kvMatch[1].trim();
+                const v = kvMatch[2].trim().replace(/^["']|["']$/g, '');
+                
+                // 路径匹配填表
+                const field = document.querySelector(`[data-p$=".${k}"], [data-p="${k}"]`);
+                if (field) field.value = v;
+
+                // 特殊字段映射
+                if(k === "童年(0-12岁)") document.querySelector('[data-p="background_story.童年"]').value = v;
+                if(k === "少年(13-18岁)") document.querySelector('[data-p="background_story.少年"]').value = v;
+                if(k === "青年(19-35岁)") document.querySelector('[data-p="background_story.青年"]').value = v;
+                if(k === "中年(35-至今)") document.querySelector('[data-p="background_story.中年"]').value = v;
+
+                currentSection = k;
+            }
+
+            // 2. 列表项 (- Value)
+            if (trimmed.startsWith('-')) {
+                const listVal = trimmed.substring(1).trim();
+                
+                // 处理技能嵌套格式
+                if (listVal.startsWith('工作:')) document.getElementById('skill-work').value = listVal.split(':')[1].trim();
+                else if (listVal.startsWith('生活:')) document.getElementById('skill-life').value = listVal.split(':')[1].trim();
+                else if (listVal.startsWith('爱好:')) document.getElementById('skill-hobby').value = listVal.split(':')[1].trim();
+
+                // 处理人际关系列表 (多行匹配)
+                else if (currentSection === "relationships") {
+                    // 这里由于 YAML 格式，name 可能在下一行，采取简易行解析
+                    if(listVal.startsWith('name:')) {
+                        const name = listVal.split(':')[1].trim().replace(/,$/, "").replace(/^"|"$/g, '');
+                        addRel(name, "", "");
+                    }
+                }
+                
+                // 通用列表
+                else {
+                    const cleanVal = listVal.replace(/^"|"$/g, '');
+                    const listMap = {
+                        "identity": "identity", "social_status": "social_status", 
+                        "build": "build", "lifestyle_behaviors": "lifestyle_behaviors",
+                        "work_behaviors": "work_behaviors", "goals": "goals",
+                        "shared_history_with_user": "history", "sexual_habits": "sexual_habits"
+                    };
+                    if (listMap[currentSection]) addList(listMap[currentSection], cleanVal);
+
+                    // 性格键值对解析
+                    if (currentSection === "core_traits" || currentSection === "romantic_traits") {
+                        const traitMatch = cleanVal.match(/^([^:]+):\s*(.*)$/);
+                        if (traitMatch) addTrait(currentSection, traitMatch[1], traitMatch[2]);
+                    }
+                }
+            }
+        });
+
         document.getElementById('import-modal').style.display = 'none';
         refreshRender();
-        alert("✅ 导入完成！请检查所有字段。");
     }
 
     function collectAll() {
@@ -531,15 +450,24 @@
                         <p><b>Stats:</b> ${d.base.age}yr | ${d.base.gen} | ${d.base.height}</p>
                     </div>
                 </div>
+
                 <div class="block-title">Background Story</div>
                 <div class="info-p"><b>Current:</b><span>${d.base.bg_now}</span></div>
+                <div class="info-p"><b>Past:</b><span>${d.base.bg_child}</span></div>
+
                 <div class="block-title">Appearance & Attire</div>
                 <div class="info-p"><b>Features:</b><span>${d.base.hair}, ${d.base.eyes}, ${d.base.skin}</span></div>
+                <div class="info-p"><b>Build:</b><span>${d.lists.build.join(', ')}</span></div>
+
                 <div class="block-title">Personality & Habits</div>
+                <div class="info-p"><b>Archetype:</b><span>${d.base.arche}</span></div>
                 <div class="info-p"><b>Traits:</b><span>${d.personality.core.map(t => '['+t.k+': '+t.v+']').join(' ')}</span></div>
+                <div class="info-p"><b>Daily:</b><span>${d.lists.lifestyle.slice(0,3).join('; ')}...</span></div>
+
                 <div class="block-title">Skills & Social</div>
                 <div class="info-p"><b>Work Skill:</b><span>${d.skills.work}</span></div>
                 <div class="info-p"><b>Relations:</b><span>${d.rels.map(r => r.n+'('+r.r+')').join(', ')}</span></div>
+
                 <div class="block-title">NSFW</div>
                 <div class="info-p"><b>Kinks:</b><span>${d.base.kinks}</span></div>
             </div>
@@ -637,4 +565,3 @@ NSFW_information:
 </script>
 </body>
 </html>
-   
