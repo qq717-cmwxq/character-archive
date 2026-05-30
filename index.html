@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>角色档案生成工具 Pro V7.0</title>
+    <title>角色档案创作生成工具 Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
         :root {
@@ -23,7 +23,7 @@
         header { width: 100%; max-width: 1400px; display: flex; justify-content: space-between; margin-bottom: 20px; align-items: center; }
         .logo { font-size: 24px; font-weight: bold; color: var(--text); }
 
-        main { width: 100%; max-width: 1400px; display: grid; grid-template-columns: 600px 1fr; gap: 20px; align-items: start; }
+        main { width: 100%; max-width: 1400px; display: grid; grid-template-columns: 580px 1fr; gap: 20px; align-items: start; }
 
         /* 左侧编辑器 */
         .editor-side {
@@ -31,7 +31,7 @@
             border: 5px solid var(--m-green); height: 90vh; overflow-y: auto;
             box-shadow: 0 10px 30px rgba(0,0,0,0.05); box-sizing: border-box;
         }
-        .section-box { margin-bottom: 20px; padding: 15px; background: #fafafa; border-radius: 12px; border: 1px solid #eee; }
+        .section-box { margin-bottom: 25px; padding: 15px; background: #fafafa; border-radius: 12px; border: 1px solid #eee; }
         .section-box h3 { margin: 0 0 15px 0; font-size: 16px; color: var(--text); border-bottom: 2px solid var(--m-dark-green); padding-bottom: 5px; }
 
         .field-item { margin-bottom: 12px; }
@@ -41,6 +41,7 @@
         input, textarea {
             width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; box-sizing: border-box; background: #fff;
         }
+        textarea { resize: vertical; min-height: 60px; }
 
         /* 动态列表 */
         .dynamic-list { display: flex; flex-direction: column; gap: 6px; }
@@ -54,224 +55,240 @@
         .style-bar { background: white; padding: 12px; border-radius: 15px; margin-bottom: 10px; display: flex; gap: 10px; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         #render-container { flex: 1; overflow-y: auto; background: #999; border-radius: 15px; display: flex; justify-content: center; padding: 40px 0; }
         
+        /* 画布容器 */
         #profile-canvas { width: 850px; background: white; min-height: 1200px; position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.3); overflow: hidden; }
 
-        /* 通用展示组件 */
-        .portrait-frame { width: 250px; height: 250px; overflow: hidden; margin: 0 auto 20px; background: #eee; border: 6px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.1); position: relative; }
-        .portrait-frame img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .display-section { padding: 0 40px 40px 40px; }
-        .style-title { font-size: 18px; font-weight: bold; border-bottom: 2px solid #ddd; margin: 30px 0 15px 0; padding-bottom: 5px; color: #333; text-transform: uppercase; }
-        .data-line { margin-bottom: 10px; line-height: 1.6; font-size: 14px; display: flex; }
-        .data-key { font-weight: bold; color: #666; width: 150px; flex-shrink: 0; }
-        .data-val { color: #333; flex: 1; word-break: break-all; }
+        /* 通用渲染组件 */
+        .portrait-wrapper { width: 220px; height: 220px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #eee; }
+        .portrait-wrapper img { width: 100%; height: 100%; object-fit: cover; flex-shrink: 0; }
+        .block-title { font-weight: bold; border-bottom: 1px solid #ddd; margin: 25px 0 10px 0; padding-bottom: 5px; font-size: 16px; }
+        .info-p { font-size: 14px; line-height: 1.6; margin: 8px 0; display: flex; }
+        .info-p b { width: 140px; flex-shrink: 0; color: #666; }
 
-        /* --- 5大风格特化 UI --- */
-        /* 1. Archive - 马卡龙 */
-        .style-archive { background: var(--m-yellow); padding: 40px; }
-        .style-archive .inner { background: white; border-radius: 30px; border: 8px solid var(--m-green); padding-top: 40px; }
-        .style-archive .style-title { color: var(--text); border-color: var(--m-dark-green); }
+        /* --- 五大风格 UI --- */
+        /* 1. Archive 马卡龙档案 */
+        .style-archive { background: var(--m-yellow); padding: 50px; color: var(--text); }
+        .style-archive .inner { background: white; border-radius: 30px; padding: 40px; border: 10px solid var(--m-green); }
+        .style-archive .portrait-wrapper { border-radius: 20px; border: 5px solid var(--m-green); margin: 0 auto 20px; }
 
-        /* 2. Wanted - 通缉令 */
-        .style-wanted { background: #e3c9a6; border: 30px solid #432b1d; padding: 40px; color: #432b1d; }
-        .style-wanted h1 { font-family: Impact, sans-serif; font-size: 100px; text-align: center; margin: 0; letter-spacing: 10px; border-bottom: 8px solid #432b1d; }
-        .style-wanted .portrait-frame { border: 10px solid #432b1d; border-radius: 0; filter: sepia(0.5); width: 400px; height: 400px; }
-        .style-wanted .reward { font-family: Impact; font-size: 60px; text-align: center; border-top: 5px solid #432b1d; border-bottom: 5px solid #432b1d; margin: 30px 0; }
-        .style-wanted .style-title { border-color: #432b1d; }
+        /* 2. Wanted 通缉令 */
+        .style-wanted { background: #e3c9a6; padding: 50px; color: #432b1d; border: 25px solid #432b1d; text-align: center; }
+        .style-wanted .header { font-family: 'Impact', fantasy; font-size: 110px; border-bottom: 8px solid #432b1d; margin-bottom: 20px; }
+        .style-wanted .portrait-wrapper { width: 450px; height: 450px; margin: 0 auto; border: 10px solid #432b1d; filter: sepia(0.5) contrast(1.2); }
+        .style-wanted .reward { font-family: Impact; font-size: 60px; margin: 30px 0; border-top: 5px solid #432b1d; border-bottom: 5px solid #432b1d; }
+        .style-wanted .info-box { text-align: left; font-family: serif; font-weight: bold; }
 
-        /* 3. Cyber ID - 证件 */
-        .style-id { background: #0b0e14; color: #00ffcc; font-family: monospace; }
-        .style-id .portrait-frame { border-radius: 0; border: 2px solid #00ffcc; float: right; width: 200px; height: 250px; margin: 40px; }
-        .style-id .style-title { color: #ff00ff; border-color: #333; }
+        /* 3. Cyber ID 证件 */
+        .style-id { background: #0b0e14; color: #00ffcc; padding: 40px; font-family: 'Courier New', Courier, monospace; }
+        .style-id .portrait-wrapper { border: 2px solid #00ffcc; float: right; width: 180px; height: 220px; }
+        .style-id .block-title { border-color: #00ffcc; color: #ff00ff; }
 
-        /* 4. Scrapbook - 手账 */
-        .style-scrapbook { background: white; position: relative; border: 4px solid var(--m-pink); }
-        .style-scrapbook .tape { width: 120px; height: 40px; background: rgba(255, 209, 220, 0.6); position: absolute; transform: rotate(-10deg); top: 30px; left: 40%; z-index: 10; }
-        .style-scrapbook .style-title { color: #ff7675; font-family: cursive; border-bottom-style: dashed; }
+        /* 4. Journal 手账 */
+        .style-journal { background: white; padding: 50px; border: 2px solid var(--m-pink); }
+        .style-journal .tape { width: 120px; height: 40px; background: rgba(255, 209, 220, 0.5); position: absolute; transform: rotate(-5deg); top: 20px; left: 40%; }
+        .style-journal .block-title { color: #ff7675; border-bottom: 2px dashed var(--m-pink); }
 
-        /* 5. Bauhaus - 极简 */
-        .style-bauhaus { display: grid; grid-template-columns: 320px 1fr; background: white; }
-        .style-bauhaus .side-bar { background: #000; color: #fff; padding: 40px; }
-        .style-bauhaus .main-content { padding: 40px; }
-        .style-bauhaus .style-title { font-size: 24px; border-bottom-width: 4px; border-color: #000; }
+        /* 5. Bauhaus 极简 */
+        .style-bauhaus { display: grid; grid-template-columns: 300px 1fr; background: white; min-height: 100%; }
+        .style-bauhaus .side { background: #000; color: #fff; padding: 40px; }
+        .style-bauhaus .main { padding: 60px; color: #000; }
+        .style-bauhaus .block-title { border-bottom: 4px solid #000; font-size: 24px; font-weight: 900; }
 
         /* 弹窗 */
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; justify-content:center; align-items:center; }
         .modal-content { background:white; padding:30px; border-radius:20px; width:800px; max-width:90%; }
-        .btn { padding: 12px 24px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; }
+        
+        .btn { padding: 12px 24px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-p { background: var(--m-dark-green); color: white; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo">🧸 Character Profile Pro <span style="font-size:12px; opacity:0.6">V7.0 (江牧专用解析器)</span></div>
+    <div class="logo">🧸 Character Profile Studio <span style="font-size:12px; opacity:0.6">V6.5</span></div>
     <div style="display:flex; gap:10px">
-        <button class="btn" style="background:var(--m-dark-green); color:white" onclick="document.getElementById('import-modal').style.display='flex'">💡 智能解析导入</button>
-        <button class="btn" style="background:#4A90E2; color:white" onclick="exportYAML()">📤 导出纯英 YAML</button>
-        <button class="btn" style="background:var(--m-pink); color:#B36B7C" onclick="savePNG()">📸 生成高清图片</button>
+        <button class="btn btn-p" onclick="document.getElementById('import-modal').style.display='flex'">💡 导入人设 (YAML)</button>
+        <button class="btn btn-p" style="background:#4A90E2" onclick="exportYAML()">📤 导出纯英文 YAML</button>
+        <button class="btn btn-p" style="background:var(--m-pink); color:#B36B7C" onclick="saveImage()">📸 保存高清图片</button>
     </div>
 </header>
 
 <main>
-    <!-- 左侧编辑 -->
+    <!-- 左侧编辑器 -->
     <aside class="editor-side">
+        <!-- 照片 -->
         <div class="section-box">
             <h3>Image 形象上传</h3>
             <input type="file" accept="image/*" onchange="loadAvatar(this)">
         </div>
 
-        <!-- 基础信息 -->
+        <!-- char_name -->
         <div class="section-box">
             <h3>char_name 核心信息</h3>
             <div class="field-item"><label class="label-wrap">Chinese name <span class="label-zh">中文名</span></label><input type="text" data-p="char_name.Chinese_name"></div>
             <div class="field-item"><label class="label-wrap">Nickname <span class="label-zh">昵称</span></label><input type="text" data-p="char_name.Nickname"></div>
-            <div style="display:flex; gap:5px">
-                <input type="text" data-p="char_name.age" placeholder="age">
-                <input type="text" data-p="char_name.gender" placeholder="gender">
-                <input type="text" data-p="char_name.height" placeholder="height">
+            <div style="display:flex; gap:10px">
+                <input type="text" data-p="char_name.age" placeholder="age 年龄">
+                <input type="text" data-p="char_name.gender" placeholder="gender 性别">
+                <input type="text" data-p="char_name.height" placeholder="height 身高">
             </div>
             <div class="field-item" style="margin-top:10px">
-                <label class="label-wrap">identity <span>身份</span></label>
+                <label class="label-wrap">identity <span class="label-zh">身份列表</span></label>
                 <div id="list-identity" class="dynamic-list"></div>
                 <button class="btn-mini btn-add" onclick="addList('identity')">+ 添加身份</button>
             </div>
         </div>
 
-        <!-- 背景故事 -->
+        <!-- background_story -->
         <div class="section-box">
             <h3>background_story 背景故事</h3>
-            <div class="field-item"><label class="label-wrap">童年 (0-12岁)</label><textarea data-p="background_story.childhood"></textarea></div>
-            <div class="field-item"><label class="label-wrap">少年 (13-18岁)</label><textarea data-p="background_story.youth"></textarea></div>
-            <div class="field-item"><label class="label-wrap">青年 (19-35岁)</label><textarea data-p="background_story.young"></textarea></div>
-            <div class="field-item"><label class="label-wrap">中年 (35岁+)</label><textarea data-p="background_story.middle"></textarea></div>
-            <div class="field-item"><label class="label-wrap">现状</label><textarea data-p="background_story.status"></textarea></div>
+            <div class="field-item"><label class="label-wrap">童年(0-12岁)</label><textarea data-p="background_story.童年"></textarea></div>
+            <div class="field-item"><label class="label-wrap">少年(13-18岁)</label><textarea data-p="background_story.少年"></textarea></div>
+            <div class="field-item"><label class="label-wrap">青年(19-35岁)</label><textarea data-p="background_story.青年"></textarea></div>
+            <div class="field-item"><label class="label-wrap">中年(35-至今)</label><textarea data-p="background_story.中年"></textarea></div>
+            <div class="field-item"><label class="label-wrap">现状</label><textarea data-p="background_story.现状"></textarea></div>
         </div>
 
-        <!-- 外貌与社会地位 -->
+        <!-- social_status -->
         <div class="section-box">
-            <h3>Appearance & Status</h3>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px">
-                <input type="text" data-p="appearance.hair" placeholder="hair">
-                <input type="text" data-p="appearance.eyes" placeholder="eyes">
-                <input type="text" data-p="appearance.skin" placeholder="skin">
-                <input type="text" data-p="appearance.face_style" placeholder="face_style">
+            <h3>social_status 社会地位</h3>
+            <div id="list-social_status" class="dynamic-list"></div>
+            <button class="btn-mini btn-add" onclick="addList('social_status')">+ 添加地位标签</button>
+        </div>
+
+        <!-- appearance -->
+        <div class="section-box">
+            <h3>appearance 外貌特征</h3>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+                <input type="text" data-p="appearance.hair" placeholder="hair 发型">
+                <input type="text" data-p="appearance.eyes" placeholder="eyes 眼睛">
+                <input type="text" data-p="appearance.skin" placeholder="skin 皮肤">
+                <input type="text" data-p="appearance.face_style" placeholder="face_style 脸型">
             </div>
-            <label class="label-wrap" style="margin-top:10px">build <span>体型标签</span></label>
-            <div id="list-build" class="dynamic-list"></div>
-            <button class="btn-mini btn-add" onclick="addList('build')">+ 添加体型</button>
-            <label class="label-wrap" style="margin-top:10px">social_status <span>社会地位</span></label>
-            <div id="list-social" class="dynamic-list"></div>
-            <button class="btn-mini btn-add" onclick="addList('social')">+ 添加地位</button>
-        </div>
-
-        <!-- 性格特征 -->
-        <div class="section-box">
-            <h3>Personality 性格描述</h3>
-            <div class="field-item"><label class="label-wrap">archetype 角色原型</label><input type="text" data-p="archetype"></div>
-            <label class="label-wrap">core_traits 核心性格 (项: 描述)</label>
-            <div id="list-core" class="dynamic-list"></div>
-            <button class="btn-mini btn-add" onclick="addTrait('core')">+ 添加核心性格</button>
-            <label class="label-wrap" style="margin-top:10px">romantic_traits 情感性格</label>
-            <div id="list-romantic" class="dynamic-list"></div>
-            <button class="btn-mini btn-add" onclick="addTrait('romantic')">+ 添加情感性格</button>
-        </div>
-
-        <!-- 行为与目标 -->
-        <div class="section-box">
-            <h3>Behaviors & Goals</h3>
-            <div style="display:flex; gap:5px">
-                <input type="text" data-p="behavior.angry" placeholder="angry反应">
-                <input type="text" data-p="behavior.happy" placeholder="happy反应">
+            <div style="margin-top:10px">
+                <label class="label-wrap">build <span class="label-zh">体型特征</span></label>
+                <div id="list-build" class="dynamic-list"></div>
+                <button class="btn-mini btn-add" onclick="addList('build')">+ 添加体型描述</button>
             </div>
-            <label class="label-wrap" style="margin-top:10px">lifestyle_behaviors 生活习惯</label>
-            <div id="list-life" class="dynamic-list"></div>
-            <button class="btn-mini btn-add" onclick="addList('life')">+ 添加生活习惯</button>
-            <label class="label-wrap" style="margin-top:10px">work_behaviors 工作习惯</label>
-            <div id="list-workb" class="dynamic-list"></div>
-            <button class="btn-mini btn-add" onclick="addList('workb')">+ 添加工作习惯</button>
-            <label class="label-wrap" style="margin-top:10px">goals 目标</label>
+        </div>
+
+        <!-- attire -->
+        <div class="section-box">
+            <h3>attire 穿着</h3>
+            <input type="text" data-p="attire.business_formal" placeholder="商务正装" class="field-item">
+            <input type="text" data-p="attire.business_casual" placeholder="商务休闲" class="field-item">
+            <input type="text" data-p="attire.casual_wear" placeholder="日常便装" class="field-item">
+            <input type="text" data-p="attire.home_wear" placeholder="居家穿着" class="field-item">
+        </div>
+
+        <!-- personality -->
+        <div class="section-box">
+            <h3>personality 性格</h3>
+            <input type="text" data-p="archetype" placeholder="archetype 角色原型" class="field-item">
+            <label class="label-wrap">core_traits <span class="label-zh">核心性格 (性格名: 描述)</span></label>
+            <div id="list-core_traits" class="dynamic-list"></div>
+            <button class="btn-mini btn-add" onclick="addTrait('core_traits')">+ 添加核心性格</button>
+            <label class="label-wrap" style="margin-top:10px">romantic_traits <span class="label-zh">情感性格</span></label>
+            <div id="list-romantic_traits" class="dynamic-list"></div>
+            <button class="btn-mini btn-add" onclick="addTrait('romantic_traits')">+ 添加情感性格</button>
+        </div>
+
+        <!-- behaviors -->
+        <div class="section-box">
+            <h3>Behaviors 行为</h3>
+            <label class="label-wrap">lifestyle_behaviors <span class="label-zh">生活习惯</span></label>
+            <div id="list-lifestyle_behaviors" class="dynamic-list"></div>
+            <button class="btn-mini btn-add" onclick="addList('lifestyle_behaviors')">+ 添加生活习惯</button>
+            <hr>
+            <label class="label-wrap">work_behaviors <span class="label-zh">工作习惯</span></label>
+            <div id="list-work_behaviors" class="dynamic-list"></div>
+            <button class="btn-mini btn-add" onclick="addList('work_behaviors')">+ 添加工作习惯</button>
+            <div style="display:flex; gap:10px; margin-top:10px">
+                <input type="text" data-p="emotional_behaviors.angry" placeholder="angry 愤怒反应">
+                <input type="text" data-p="emotional_behaviors.happy" placeholder="happy 开心反应">
+            </div>
+        </div>
+
+        <!-- 缺失板块补充 -->
+        <div class="section-box">
+            <h3>Social & Others 社交与其它</h3>
+            <label class="label-wrap">goals <span class="label-zh">目标</span></label>
             <div id="list-goals" class="dynamic-list"></div>
             <button class="btn-mini btn-add" onclick="addList('goals')">+ 添加目标</button>
-        </div>
-
-        <!-- 人际关系与经历 -->
-        <div class="section-box">
-            <h3>Relationships & History</h3>
-            <label class="label-wrap">relationships 人际关系 (姓名|关系|描述)</label>
-            <div id="list-rel" class="dynamic-list"></div>
+            <hr>
+            <label class="label-wrap">relationships <span class="label-zh">人际关系 (姓名|关系|描述)</span></label>
+            <div id="list-relationships" class="dynamic-list"></div>
             <button class="btn-mini btn-add" onclick="addRel()">+ 添加关系人</button>
             <hr>
-            <label class="label-wrap">shared_history 与用户经历</label>
+            <label class="label-wrap">shared_history <span class="label-zh">与用户共同经历</span></label>
             <div id="list-history" class="dynamic-list"></div>
-            <button class="btn-mini btn-add" onclick="addList('history')">+ 添加共同经历</button>
+            <button class="btn-mini btn-add" onclick="addList('history')">+ 添加经历</button>
+            <hr>
+            <div class="field-item"><label class="label-wrap">weakness <span class="label-zh">缺点</span></label><textarea data-p="weakness" placeholder="回车分隔"></textarea></div>
+            <div class="field-item"><label class="label-wrap">likes <span class="label-zh">喜欢</span></label><textarea data-p="likes" placeholder="回车分隔"></textarea></div>
+            <div class="field-item"><label class="label-wrap">dislikes <span class="label-zh">厌恶</span></label><textarea data-p="dislikes" placeholder="回车分隔"></textarea></div>
         </div>
 
-        <!-- 优缺点/喜欢/厌恶 -->
+        <!-- skills 嵌套格式 -->
         <div class="section-box">
-            <h3>Traits & Preferences</h3>
-            <label class="label-wrap">weakness 缺点</label><textarea data-p="weakness" rows="2"></textarea>
-            <label class="label-wrap">likes 喜欢</label><textarea data-p="likes" rows="2"></textarea>
-            <label class="label-wrap">dislikes 厌恶</label><textarea data-p="dislikes" rows="2"></textarea>
+            <h3>skills 技能 (分类列表)</h3>
+            <div class="field-item"><label class="label-wrap">工作技能</label><textarea id="skill-work" placeholder='["技能1", "描述1"]'></textarea></div>
+            <div class="field-item"><label class="label-wrap">生活技能</label><textarea id="skill-life"></textarea></div>
+            <div class="field-item"><label class="label-wrap">爱好技能</label><textarea id="skill-hobby"></textarea></div>
         </div>
 
-        <!-- 技能部分 -->
-        <div class="section-box">
-            <h3>Skills 技能分类</h3>
-            <label class="label-wrap">工作技能 (格式: ["A", "B"])</label><input type="text" id="sk-work">
-            <label class="label-wrap">生活技能</label><input type="text" id="sk-life">
-            <label class="label-wrap">爱好技能</label><input type="text" id="sk-hobby">
-        </div>
-
-        <!-- NSFW 信息 -->
+        <!-- NSFW -->
         <div class="section-box" style="background:#fff0f0">
-            <h3>NSFW Information</h3>
-            <input type="text" data-p="nsfw.exp" placeholder="性经历 exp" class="field-item">
-            <input type="text" data-p="nsfw.ori" placeholder="性取向 orientation" class="field-item">
-            <input type="text" data-p="nsfw.role" placeholder="性角色倾向 role" class="field-item">
-            <label class="label-wrap">sexual_habits 癖好列表</label>
-            <div id="list-habits" class="dynamic-list"></div>
-            <button class="btn-mini btn-add" onclick="addList('habits')">+ 添加性癖好</button>
-            <input type="text" data-p="nsfw.kinks" placeholder="Kinks" class="field-item" style="margin-top:10px">
-            <input type="text" data-p="nsfw.limits" placeholder="Limits 底线" class="field-item">
+            <h3>NSFW_information 隐私信息</h3>
+            <input type="text" data-p="nsfw.exp" placeholder="性经历 experiences" class="field-item">
+            <input type="text" data-p="nsfw.ori" placeholder="性取向 sexual_orientation" class="field-item">
+            <input type="text" data-p="nsfw.role" placeholder="性角色倾向 sexual_role" class="field-item">
+            <label class="label-wrap">sexual_habits 习惯性癖好</label>
+            <div id="list-sexual_habits" class="dynamic-list"></div>
+            <button class="btn-mini btn-add" onclick="addList('sexual_habits')">+ 添加癖好项</button>
+            <input type="text" data-p="nsfw.kinks" placeholder="Kinks 性癖好" class="field-item" style="margin-top:10px">
+            <input type="text" data-p="nsfw.limits" placeholder="Limits 不接受底线" class="field-item">
         </div>
 
-        <button class="btn" style="width:100%; background:var(--m-dark-green); color:white; font-size:18px" onclick="refreshRender()">立即渲染所有信息 ✨</button>
+        <button class="btn btn-p" style="width:100%; font-size:18px" onclick="refreshRender()">生成人设档案 ✨</button>
     </aside>
 
-    <!-- 右侧渲染 -->
+    <!-- 右侧渲染区 -->
     <section class="preview-side">
         <div class="style-bar">
             <span>风格：</span>
             <select id="style-select" onchange="refreshRender()">
-                <option value="style-archive">马卡龙档案 Archive</option>
-                <option value="style-wanted">复古通缉令 Wanted</option>
-                <option value="style-id">赛博证件 Cyber ID</option>
-                <option value="style-scrapbook">手账拼接 Scrapbook</option>
-                <option value="style-bauhaus">包豪斯网格 Bauhaus</option>
+                <option value="style-archive">档案风 (Archive)</option>
+                <option value="style-wanted">通缉令 (Wanted)</option>
+                <option value="style-id">证件风 (Cyber ID)</option>
+                <option value="style-journal">手账风 (Scrapbook)</option>
+                <option value="style-bauhaus">极简 (Bauhaus)</option>
             </select>
+            <button class="btn btn-mini" style="background:#666; color:white" onclick="window.print()">打印 / PDF</button>
         </div>
         <div id="render-container">
             <div id="profile-canvas">
-                <!-- 动态生成 -->
+                <!-- 内容动态生成 -->
             </div>
         </div>
     </section>
 </main>
 
-<!-- 弹窗 -->
+<!-- 导入弹窗 -->
 <div id="import-modal" class="modal">
     <div class="modal-content">
-        <h3>💡 粘贴角色档案 (江牧格式)</h3>
+        <h3>💡 导入已有档案</h3>
+        <p style="font-size:12px; color:#666">请粘贴您的 YAML 格式人设文本，系统将根据字段自动填表。</p>
         <textarea id="import-area" style="width:100%; height:450px; font-family:monospace; font-size:12px;"></textarea>
         <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:15px">
             <button class="btn" onclick="document.getElementById('import-modal').style.display='none'">取消</button>
-            <button class="btn" style="background:var(--m-dark-green); color:white" onclick="doImport()">深度解析并导入</button>
+            <button class="btn btn-p" onclick="doSmartImport()">确认导入并解析</button>
         </div>
     </div>
 </div>
 
 <script>
-    let avatarData = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect width='200' height='200' fill='%23eee'/%3E%3C/svg%3E";
+    let avatarBase64 = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect width='200' height='200' fill='%23eee'/%3E%3C/svg%3E";
 
     // --- 组件逻辑 ---
     function addList(id, val = "") {
@@ -281,15 +298,17 @@
         div.innerHTML = `<input type="text" class="list-input" value="${val}"><button class="btn-mini btn-del" onclick="this.parentElement.remove()">X</button>`;
         wrap.appendChild(div);
     }
+
     function addTrait(id, k = "", v = "") {
         const wrap = document.getElementById('list-' + id);
         const div = document.createElement('div');
         div.className = 'list-row';
-        div.innerHTML = `<input type="text" class="tk" style="width:25%" value="${k}">: <input type="text" class="tv" style="width:70%" value="${v}"><button class="btn-mini btn-del" onclick="this.parentElement.remove()">X</button>`;
+        div.innerHTML = `<input type="text" class="k" style="width:25%" value="${k}">: <input type="text" class="v" style="width:70%" value="${v}"><button class="btn-mini btn-del" onclick="this.parentElement.remove()">X</button>`;
         wrap.appendChild(div);
     }
+
     function addRel(n="", r="", d="") {
-        const wrap = document.getElementById('list-rel');
+        const wrap = document.getElementById('list-relationships');
         const div = document.createElement('div');
         div.className = 'list-row';
         div.innerHTML = `<input type="text" class="rn" placeholder="名" style="width:20%" value="${n}"><input type="text" class="rr" placeholder="关系" style="width:20%" value="${r}"><input type="text" class="rd" placeholder="描述" style="width:50%" value="${d}"><button class="btn-mini btn-del" onclick="this.parentElement.remove()">X</button>`;
@@ -299,188 +318,197 @@
     function loadAvatar(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
-            reader.onload = e => { avatarData = e.target.result; refreshRender(); };
+            reader.onload = e => { avatarBase64 = e.target.result; refreshRender(); };
             reader.readAsDataURL(input.files[0]);
         }
     }
 
-    // --- 超强解析引擎 ---
-    function doImport() {
+    // --- 核心解析引擎 (智能适配 江牧 模板) ---
+    function doSmartImport() {
         const raw = document.getElementById('import-area').value;
         const lines = raw.split('\n');
+        
+        // 重置列表
         document.querySelectorAll('.dynamic-list').forEach(l => l.innerHTML = "");
 
-        let curSection = "";
-        let curRel = null;
-
+        let currentSection = "";
+        
         lines.forEach(line => {
             const trimmed = line.trim();
             if (!trimmed) return;
 
-            // 识别一级二级大类
-            if (line.match(/^\w+:/)) curSection = line.split(':')[0].trim();
+            // 1. 简单字段 (Key: Value)
+            const kvMatch = line.match(/^\s*([\w\s\u4e00-\u9fa5\(\)-]+):\s*(.*)$/);
+            if (kvMatch && !trimmed.startsWith('-')) {
+                const k = kvMatch[1].trim();
+                const v = kvMatch[2].trim().replace(/^["']|["']$/g, '');
+                
+                // 路径匹配填表
+                const field = document.querySelector(`[data-p$=".${k}"], [data-p="${k}"]`);
+                if (field) field.value = v;
 
-            // 识别简单键值
-            const kv = trimmed.match(/^([^:-]+):\s*(.*)$/);
-            if (kv && !trimmed.startsWith('-')) {
-                const k = kv[1].trim();
-                const v = kv[2].trim().replace(/^["']|["']$/g, '');
-                
-                const map = {
-                    "Chinese name": "char_name.Chinese_name", "Nickname": "char_name.Nickname",
-                    "age": "char_name.age", "gender": "char_name.gender", "height": "char_name.height",
-                    "童年(0-12岁)": "background_story.childhood", "少年(13-18岁)": "background_story.youth",
-                    "青年(19-35岁)": "background_story.young", "中年(35-至今)": "background_story.middle",
-                    "现状": "background_story.status", "hair": "appearance.hair", "eyes": "appearance.eyes",
-                    "skin": "appearance.skin", "face_style": "appearance.face_style", "archetype": "archetype",
-                    "angry": "behavior.angry", "happy": "behavior.happy", "weakness": "weakness",
-                    "likes": "likes", "dislikes": "dislikes", "experiences": "nsfw.exp",
-                    "sexual_orientation": "nsfw.ori", "sexual_role": "nsfw.role", "Kinks": "nsfw.kinks",
-                    "Limits": "nsfw.limits"
-                };
-                if (map[k]) document.querySelector(`[data-p="${map[k]}"]`).value = v;
-                
-                // 人际关系深层
-                if (curRel && k === "relationship") curRel.r = v;
-                if (curRel && k === "description") curRel.d = v;
+                // 特殊字段映射
+                if(k === "童年(0-12岁)") document.querySelector('[data-p="background_story.童年"]').value = v;
+                if(k === "少年(13-18岁)") document.querySelector('[data-p="background_story.少年"]').value = v;
+                if(k === "青年(19-35岁)") document.querySelector('[data-p="background_story.青年"]').value = v;
+                if(k === "中年(35-至今)") document.querySelector('[data-p="background_story.中年"]').value = v;
+
+                currentSection = k;
             }
 
-            // 识别列表项
+            // 2. 列表项 (- Value)
             if (trimmed.startsWith('-')) {
-                const content = trimmed.substring(1).trim();
+                const listVal = trimmed.substring(1).trim();
                 
-                // 技能特殊解析
-                if (content.includes('工作:')) document.getElementById('sk-work').value = content.split('工作:')[1].trim();
-                if (content.includes('生活:')) document.getElementById('sk-life').value = content.split('生活:')[1].trim();
-                if (content.includes('爱好:')) document.getElementById('sk-hobby').value = content.split('爱好:')[1].trim();
+                // 处理技能嵌套格式
+                if (listVal.startsWith('工作:')) document.getElementById('skill-work').value = listVal.split(':')[1].trim();
+                else if (listVal.startsWith('生活:')) document.getElementById('skill-life').value = listVal.split(':')[1].trim();
+                else if (listVal.startsWith('爱好:')) document.getElementById('skill-hobby').value = listVal.split(':')[1].trim();
 
-                // 人际关系名
-                if (content.startsWith('name:')) {
-                    if(curRel) addRel(curRel.n, curRel.r, curRel.d);
-                    curRel = { n: content.split(':')[1].trim().replace(/^"|"$/g, ''), r: "", d: "" };
+                // 处理人际关系列表 (多行匹配)
+                else if (currentSection === "relationships") {
+                    // 这里由于 YAML 格式，name 可能在下一行，采取简易行解析
+                    if(listVal.startsWith('name:')) {
+                        const name = listVal.split(':')[1].trim().replace(/,$/, "").replace(/^"|"$/g, '');
+                        addRel(name, "", "");
+                    }
                 }
+                
+                // 通用列表
+                else {
+                    const cleanVal = listVal.replace(/^"|"$/g, '');
+                    const listMap = {
+                        "identity": "identity", "social_status": "social_status", 
+                        "build": "build", "lifestyle_behaviors": "lifestyle_behaviors",
+                        "work_behaviors": "work_behaviors", "goals": "goals",
+                        "shared_history_with_user": "history", "sexual_habits": "sexual_habits"
+                    };
+                    if (listMap[currentSection]) addList(listMap[currentSection], cleanVal);
 
-                // 其它普通列表
-                const clean = content.replace(/^"|"$/g, '');
-                if (curSection === "identity") addList('identity', clean);
-                if (curSection === "social_status") addList('social', clean);
-                if (curSection === "build") addList('build', clean);
-                if (curSection === "lifestyle_behaviors") addList('life', clean);
-                if (curSection === "work_behaviors") addList('workb', clean);
-                if (curSection === "goals") addList('goals', clean);
-                if (curSection === "shared_history_with_user") addList('history', clean);
-                if (curSection === "sexual_habits") addList('habits', clean);
-
-                // 性格键值对解析
-                if (curSection === "core_traits" || curSection === "romantic_traits") {
-                    const trait = clean.match(/^([^:]+):\s*(.*)$/);
-                    if (trait) addTrait(curSection === "core_traits" ? "core" : "romantic", trait[1], trait[2]);
+                    // 性格键值对解析
+                    if (currentSection === "core_traits" || currentSection === "romantic_traits") {
+                        const traitMatch = cleanVal.match(/^([^:]+):\s*(.*)$/);
+                        if (traitMatch) addTrait(currentSection, traitMatch[1], traitMatch[2]);
+                    }
                 }
             }
         });
-        if(curRel) addRel(curRel.n, curRel.r, curRel.d); // 补最后一个
+
         document.getElementById('import-modal').style.display = 'none';
         refreshRender();
     }
 
-    function collect() {
+    function collectAll() {
         const g = p => document.querySelector(`[data-p="${p}"]`)?.value || "";
         const gL = id => Array.from(document.querySelectorAll(`#list-${id} .list-input`)).map(i => i.value);
-        const gT = id => Array.from(document.querySelectorAll(`#list-${id} .list-row`)).map(r => ({k: r.querySelector('.tk').value, v: r.querySelector('.tv').value}));
         
         return {
             base: {
                 name: g("char_name.Chinese_name"), nick: g("char_name.Nickname"),
                 age: g("char_name.age"), gen: g("char_name.gender"), height: g("char_name.height"),
-                child: g("background_story.childhood"), teen: g("background_story.youth"), young: g("background_story.young"), mid: g("background_story.middle"), now: g("background_story.status"),
+                bg_child: g("background_story.童年"), bg_teen: g("background_story.少年"), 
+                bg_young: g("background_story.青年"), bg_mid: g("background_story.中年"), 
+                bg_now: g("background_story.现状"),
                 hair: g("appearance.hair"), eyes: g("appearance.eyes"), skin: g("appearance.skin"), face: g("appearance.face_style"),
-                arche: g("archetype"), angry: g("behavior.angry"), happy: g("behavior.happy"),
+                arche: g("archetype"), angry: g("emotional_behaviors.angry"), happy: g("emotional_behaviors.happy"),
                 weak: g("weakness"), likes: g("likes"), dislikes: g("dislikes"),
-                sex_exp: g("nsfw.exp"), sex_ori: g("nsfw.ori"), sex_role: g("nsfw.role"), kinks: g("nsfw.kinks"), limits: g("nsfw.limits")
+                nsfw_exp: g("nsfw.exp"), nsfw_ori: g("nsfw.ori"), nsfw_role: g("nsfw.role"), kinks: g("nsfw.kinks"), limits: g("nsfw.limits")
             },
             lists: {
-                id: gL('identity'), social: gL('social'), build: gL('build'), life: gL('life'), workb: gL('workb'), goals: gL('goals'), hist: gL('history'), habits: gL('habits')
+                id: gL('identity'), status: gL('social_status'), build: gL('build'),
+                lifestyle: gL('lifestyle_behaviors'), work: gL('work_behaviors'), goals: gL('goals'),
+                history: gL('history'), sex_habits: gL('sexual_habits')
             },
-            traits: { core: gT('core'), romantic: gT('romantic') },
-            rels: Array.from(document.querySelectorAll('#list-rel .list-row')).map(r => ({n: r.querySelector('.rn').value, r: r.querySelector('.rr').value, d: r.querySelector('.rd').value})),
-            skills: { work: document.getElementById('sk-work').value, life: document.getElementById('sk-life').value, hobby: document.getElementById('sk-hobby').value }
+            personality: {
+                core: Array.from(document.querySelectorAll('#list-core_traits .list-row')).map(r => ({k: r.querySelector('.k').value, v: r.querySelector('.v').value})),
+                romantic: Array.from(document.querySelectorAll('#list-romantic_traits .list-row')).map(r => ({k: r.querySelector('.k').value, v: r.querySelector('.v').value}))
+            },
+            rels: Array.from(document.querySelectorAll('#list-relationships .list-row')).map(r => ({n: r.querySelector('.rn').value, r: r.querySelector('.rr').value, d: r.querySelector('.rd').value})),
+            skills: {
+                work: document.getElementById('skill-work').value,
+                life: document.getElementById('skill-life').value,
+                hobby: document.getElementById('skill-hobby').value
+            }
         };
     }
 
     function refreshRender() {
-        const d = collect();
+        const d = collectAll();
         const style = document.getElementById('style-select').value;
         const target = document.getElementById('profile-canvas');
         target.className = style;
 
-        const allInfo = `
-            <div class="display-section">
-                <div class="style-title">I. Basic Identification</div>
-                <div class="data-line"><span class="data-key">Chinese Name:</span><span class="data-val">${d.base.name}</span></div>
-                <div class="data-line"><span class="data-key">Nickname:</span><span class="data-val">${d.base.nick}</span></div>
-                <div class="data-line"><span class="data-key">Stats:</span><span class="data-val">${d.base.age}yr | ${d.base.gen} | ${d.base.height}</span></div>
-                <div class="data-line"><span class="data-key">Identity:</span><span class="data-val">${d.lists.id.join(', ')}</span></div>
-                <div class="data-line"><span class="data-key">Social Status:</span><span class="data-val">${d.lists.social.join(' | ')}</span></div>
+        const commonBody = `
+            <div style="padding:40px">
+                <div style="display:flex; gap:30px; align-items:flex-start">
+                    <div class="portrait-wrapper"><img src="${avatarBase64}"></div>
+                    <div style="flex:1">
+                        <h1 style="margin:0; font-size:32px">${d.base.name || 'UNSET'}</h1>
+                        <p style="color:#888; font-size:18px">${d.base.nick}</p>
+                        <p><b>Identity:</b> ${d.lists.id.join(' | ')}</p>
+                        <p><b>Status:</b> ${d.lists.status.join(' · ')}</p>
+                        <p><b>Stats:</b> ${d.base.age}yr | ${d.base.gen} | ${d.base.height}</p>
+                    </div>
+                </div>
 
-                <div class="style-title">II. Background Story</div>
-                <div class="data-line"><span class="data-key">Childhood:</span><span class="data-val">${d.base.child}</span></div>
-                <div class="data-line"><span class="data-key">Youth:</span><span class="data-val">${d.base.teen}</span></div>
-                <div class="data-line"><span class="data-key">Young Adult:</span><span class="data-val">${d.base.young}</span></div>
-                <div class="data-line"><span class="data-key">Status:</span><span class="data-val">${d.base.now}</span></div>
+                <div class="block-title">Background Story</div>
+                <div class="info-p"><b>Current:</b><span>${d.base.bg_now}</span></div>
+                <div class="info-p"><b>Past:</b><span>${d.base.bg_child}</span></div>
 
-                <div class="style-title">III. Appearance & Attire</div>
-                <div class="data-line"><span class="data-key">Features:</span><span class="data-val">${d.base.hair}, ${d.base.eyes}, ${d.base.face}, ${d.base.skin}</span></div>
-                <div class="data-line"><span class="data-key">Build:</span><span class="data-val">${d.lists.build.join(', ')}</span></div>
+                <div class="block-title">Appearance & Attire</div>
+                <div class="info-p"><b>Features:</b><span>${d.base.hair}, ${d.base.eyes}, ${d.base.skin}</span></div>
+                <div class="info-p"><b>Build:</b><span>${d.lists.build.join(', ')}</span></div>
 
-                <div class="style-title">IV. Personality & Behavior</div>
-                <div class="data-line"><span class="data-key">Archetype:</span><span class="data-val">${d.base.arche}</span></div>
-                <div class="data-line"><span class="data-key">Core Traits:</span><span class="data-val">${d.traits.core.map(t => '['+t.k+': '+t.v+']').join(' ')}</span></div>
-                <div class="data-line"><span class="data-key">Emotional:</span><span class="data-val">Angry: ${d.base.angry} | Happy: ${d.base.happy}</span></div>
-                <div class="data-line"><span class="data-key">Lifestyle:</span><span class="data-val">${d.lists.life.join('; ')}</span></div>
-                <div class="data-line"><span class="data-key">Work Style:</span><span class="data-val">${d.lists.workb.join('; ')}</span></div>
+                <div class="block-title">Personality & Habits</div>
+                <div class="info-p"><b>Archetype:</b><span>${d.base.arche}</span></div>
+                <div class="info-p"><b>Traits:</b><span>${d.personality.core.map(t => '['+t.k+': '+t.v+']').join(' ')}</span></div>
+                <div class="info-p"><b>Daily:</b><span>${d.lists.lifestyle.slice(0,3).join('; ')}...</span></div>
 
-                <div class="style-title">V. Skills & Goals</div>
-                <div class="data-line"><span class="data-key">Work Skills:</span><span class="data-val">${d.skills.work}</span></div>
-                <div class="data-line"><span class="data-key">Life Skills:</span><span class="data-val">${d.skills.life}</span></div>
-                <div class="data-line"><span class="data-key">Hobby Skills:</span><span class="data-val">${d.skills.hobby}</span></div>
-                <div class="data-line"><span class="data-key">Goals:</span><span class="data-val">${d.lists.goals.join(' | ')}</span></div>
+                <div class="block-title">Skills & Social</div>
+                <div class="info-p"><b>Work Skill:</b><span>${d.skills.work}</span></div>
+                <div class="info-p"><b>Relations:</b><span>${d.rels.map(r => r.n+'('+r.r+')').join(', ')}</span></div>
 
-                <div class="style-title">VI. Relationships & History</div>
-                <div class="data-line"><span class="data-key">Relationships:</span><div class="data-val">${d.rels.map(r => `<b>${r.n}</b>(${r.r}): ${r.d}`).join('<br>')}</div></div>
-                <div class="data-line"><span class="data-key">User History:</span><span class="data-val">${d.lists.hist.join('; ')}</span></div>
-
-                <div class="style-title">VII. Traits & NSFW</div>
-                <div class="data-line"><span class="data-key">Weakness:</span><span class="data-val">${d.base.weak}</span></div>
-                <div class="data-line"><span class="data-key">Likes:</span><span class="data-val">${d.base.likes}</span></div>
-                <div class="data-line"><span class="data-key">NSFW Exp:</span><span class="data-val">${d.base.sex_exp} | Ori: ${d.base.sex_ori} | Role: ${d.base.sex_role}</span></div>
-                <div class="data-line"><span class="data-key">Habits:</span><span class="data-val">${d.lists.habits.join(', ')}</span></div>
-                <div class="data-line"><span class="data-key">Kinks/Limits:</span><span class="data-val">Kinks: ${d.base.kinks} | Limits: ${d.base.limits}</span></div>
+                <div class="block-title">NSFW</div>
+                <div class="info-p"><b>Kinks:</b><span>${d.base.kinks}</span></div>
             </div>
         `;
 
-        let header = `<div class="portrait-frame"><img src="${avatarData}"></div>`;
         if(style === 'style-wanted') {
-            header = `<h1>WANTED</h1><div class="portrait-frame"><img src="${avatarData}"></div><div class="reward">REWARD: $${(parseInt(d.base.age)||30)*10000}</div>`;
-        }
-        
-        if(style === 'style-bauhaus') {
-            target.innerHTML = `<div class="side-bar">${header}<h2>${d.base.name}</h2><p>${d.base.nick}</p></div><div class="main-content">${allInfo}</div>`;
+            target.innerHTML = `
+                <div class="header">WANTED</div>
+                <div class="portrait-wrapper"><img src="${avatarBase64}"></div>
+                <div class="reward">REWARD: $${(parseInt(d.base.age)||20)*5000},000</div>
+                <div style="font-family:Impact; font-size:30px; margin-bottom:20px">DEAD OR ALIVE</div>
+                <div class="info-box">${commonBody}</div>
+            `;
+        } else if(style === 'style-bauhaus') {
+            target.innerHTML = `
+                <div class="side">
+                    <div class="portrait-wrapper" style="width:100%; height:300px"><img src="${avatarBase64}"></div>
+                    <h1 style="font-size:40px; margin:20px 0">${d.base.name}</h1>
+                    <p>${d.base.nick}</p>
+                    <hr style="border-color:#444">
+                    <p><b>AGE:</b> ${d.base.age}</p>
+                    <p><b>GEN:</b> ${d.base.gen}</p>
+                </div>
+                <div class="main">${commonBody}</div>
+            `;
         } else {
-            target.innerHTML = `<div class="inner">${style === 'style-scrapbook' ? '<div class="tape"></div>' : ''}${header}${allInfo}</div>`;
+            target.innerHTML = `<div class="inner">${style === 'style-journal' ? '<div class="tape"></div>' : ''}${commonBody}</div>`;
         }
     }
 
-    function savePNG() {
-        html2canvas(document.getElementById('profile-canvas'), { scale: 2, useCORS: true }).then(canvas => {
-            const a = document.createElement('a');
-            a.download = '江牧档案_Pro.png';
-            a.href = canvas.toDataURL();
-            a.click();
+    function saveImage() {
+        html2canvas(document.getElementById('profile-canvas'), { scale: 2 }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'Character_Profile.png';
+            link.href = canvas.toDataURL();
+            link.click();
         });
     }
 
     function exportYAML() {
-        const d = collect();
+        const d = collectAll();
         const yaml = `char_name:
   Chinese name: "${d.base.name}"
   Nickname: "${d.base.nick}"
@@ -491,30 +519,49 @@
 ${d.lists.id.map(i => `    - "${i}"`).join('\n')}
 
 background_story:
-  童年(0-12岁): "${d.base.child}"
-  少年(13-18岁): "${d.base.teen}"
-  现状: "${d.base.now}"
+  童年(0-12岁): "${d.base.bg_child}"
+  少年(13-18岁): "${d.base.bg_teen}"
+  青年(19-35岁): "${d.base.bg_young}"
+  中年(35-至今): "${d.base.bg_mid}"
+  现状: "${d.base.bg_now}"
+
+social_status: 
+${d.lists.status.map(i => `  - "${i}"`).join('\n')}
+
+appearance:
+  hair: "${d.base.hair}"
+  eyes: "${d.base.eyes}"
+  skin: "${d.base.skin}"
+  face_style: "${d.base.face}"
+  build: 
+${d.lists.build.map(i => `    - "${i}"`).join('\n')}
 
 personality:
-  core_traits:
-${d.traits.core.map(t => `    - ${t.k}: "${t.v}"`).join('\n')}
+  core_traits: 
+${d.personality.core.map(t => `    - ${t.k}: "${t.v}"`).join('\n')}
+  romantic_traits: 
+${d.personality.romantic.map(t => `    - ${t.k}: "${t.v}"`).join('\n')}
 
 skills:
   - 工作: ${d.skills.work || '[]'}
   - 生活: ${d.skills.life || '[]'}
+  - 爱好: ${d.skills.hobby || '[]'}
 
 NSFW_information:
   Kinks: "${d.base.kinks}"
   Limits: "${d.base.limits}"`;
-        
+
         const blob = new Blob([yaml], {type: 'text/yaml'});
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = d.base.name + '.yaml';
+        a.download = d.base.name + '_Profile.yaml';
         a.click();
     }
 
-    window.onload = () => { addList('identity'); refreshRender(); };
+    window.onload = () => {
+        addList('identity');
+        refreshRender();
+    };
 </script>
 </body>
 </html>
