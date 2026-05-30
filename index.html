@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>角色档案创作生成工具 Pro V7.0</title>
+    <title>角色档案创作生成工具 Pro V7.1</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
         :root {
@@ -379,7 +379,7 @@
 <body>
 
     <header>
-        <div class="logo">🧸 Character Profile Studio <span style="font-size:12px; opacity:0.6">V7.0</span></div>
+        <div class="logo">🧸 Character Profile Studio <span style="font-size:12px; opacity:0.6">V7.1</span></div>
         <div style="display:flex; gap:10px">
             <button class="btn btn-p" onclick="document.getElementById('import-modal').style.display='flex'">💡 导入人设 (YAML)</button>
             <button class="btn btn-p" style="background:#4A90E2" onclick="exportYAML()">📤 导出纯英文 YAML</button>
@@ -600,7 +600,7 @@
             }
         }
 
-        // ======================== 核心修复：智能导入解析 ========================
+        // ======================== 核心修复：智能导入解析 (增强版，特别是 relationships) ========================
         function doSmartImport() {
             const raw = document.getElementById('import-area').value;
             const lines = raw.split('\n');
@@ -615,21 +615,65 @@
             for (let i = 0; i < lines.length; i++) {
                 let line = lines[i];
                 let trimmed = line.trim();
-                if (!trimmed) continue;
+                if (trimmed === "") continue;
 
-                // 1. 匹配普通键值对 (Key: Value)
+                // 检查是否是顶层区块开始 (例如 "relationships:")
+                const blockStart = trimmed.match(/^([a-z_]+):\s*$/i);
+                if (blockStart) {
+                    const blockName = blockStart[1].toLowerCase();
+                    if (blockName === "relationships") {
+                        currentSection = "relationships";
+                        inRelations = true;
+                        currentRel = null;
+                        continue;
+                    } else {
+                        // 非 relationships 的区块，暂存以备后用
+                        currentSection = blockName;
+                        inRelations = false;
+                        continue;
+                    }
+                }
+
+                // 如果在 relationships 区块内
+                if (inRelations && trimmed.startsWith('-')) {
+                    // 新的一段关系开始，先保存之前的
+                    if (currentRel) {
+                        addRel(currentRel.name || '', currentRel.rel || '', currentRel.desc || '');
+                    }
+                    currentRel = { name: '', rel: '', desc: '' };
+                    // 尝试解析这一行的 name: 部分
+                    const nameMatch = trimmed.match(/-\s*name:\s*(.*)/i);
+                    if (nameMatch) {
+                        currentRel.name = nameMatch[1].trim().replace(/,$/, '').replace(/^"|"$/g, '');
+                    } else {
+                        // 如果这一行直接是 "- 苏知夏" 格式，则作为 name
+                        const simpleName = trimmed.substring(1).trim();
+                        if (simpleName && !simpleName.includes(':')) {
+                            currentRel.name = simpleName;
+                        }
+                    }
+                    continue;
+                }
+
+                // 如果在 relationships 区块内，解析 relationship 和 description 行
+                if (inRelations && currentRel) {
+                    const relMatch = trimmed.match(/^relationship:\s*(.*)/i);
+                    if (relMatch) {
+                        currentRel.rel = relMatch[1].trim().replace(/,$/, '').replace(/^"|"$/g, '');
+                        continue;
+                    }
+                    const descMatch = trimmed.match(/^description:\s*(.*)/i);
+                    if (descMatch) {
+                        currentRel.desc = descMatch[1].trim().replace(/,$/, '').replace(/^"|"$/g, '');
+                        continue;
+                    }
+                }
+
+                // 处理普通键值对 (Key: Value)
                 const kvMatch = trimmed.match(/^([\w\s\u4e00-\u9fa5\(\)-]+):\s*(.*)$/);
                 if (kvMatch && !trimmed.startsWith('-')) {
                     let k = kvMatch[1].trim();
                     let v = kvMatch[2].trim().replace(/^["']|["']$/g, '');
-
-                    // 特殊处理：如果 v 是空的，可能是多行列表的开始
-                    if (v === "" && (k === "identity" || k === "social_status" || k === "build" || k === "lifestyle_behaviors" ||
-                        k === "work_behaviors" || k === "goals" || k === "shared_history_with_user" || k === "sexual_habits" ||
-                        k === "core_traits" || k === "romantic_traits" || k === "relationships")) {
-                        currentSection = k;
-                        continue;
-                    }
 
                     // 字段路径映射
                     const map = {
@@ -669,12 +713,15 @@
                         if (field) field.value = v;
                     }
 
-                    currentSection = k;
+                    // 如果不是 relationships 区块，设置当前 section 用于列表
+                    if (!inRelations) {
+                        currentSection = k;
+                    }
                     continue;
                 }
 
-                // 2. 匹配列表项 (- value)
-                if (trimmed.startsWith('-')) {
+                // 处理列表项 (- value)
+                if (trimmed.startsWith('-') && !inRelations) {
                     let listVal = trimmed.substring(1).trim();
                     listVal = listVal.replace(/^["']|["']$/g, '');
 
@@ -698,23 +745,7 @@
                         continue;
                     }
 
-                    // 处理人际关系（三段式）
-                    if (currentSection === "relationships") {
-                        if (listVal.startsWith('name:')) {
-                            if (currentRel) {
-                                // 保存上一个关系
-                                addRel(currentRel.name || '', currentRel.rel || '', currentRel.desc || '');
-                            }
-                            currentRel = { name: listVal.split(':')[1].trim().replace(/,$/, "").replace(/^"|"$/g, '') };
-                        } else if (listVal.startsWith('relationship:') && currentRel) {
-                            currentRel.rel = listVal.split(':')[1].trim().replace(/,$/, "").replace(/^"|"$/g, '');
-                        } else if (listVal.startsWith('description:') && currentRel) {
-                            currentRel.desc = listVal.split(':')[1].trim().replace(/,$/, "").replace(/^"|"$/g, '');
-                        }
-                        continue;
-                    }
-
-                    // 处理性格键值对 (格式: - 内敛: "描述")
+                    // 处理性格键值对
                     const traitMatch = listVal.match(/^([^:]+):\s*(.*)$/);
                     if (traitMatch && (currentSection === "core_traits" || currentSection === "romantic_traits")) {
                         let traitKey = traitMatch[1].trim();
@@ -770,6 +801,10 @@
                     eyes: g("appearance.eyes"),
                     skin: g("appearance.skin"),
                     face: g("appearance.face_style"),
+                    formal: g("attire.business_formal"),
+                    casual: g("attire.business_casual"),
+                    casual_wear: g("attire.casual_wear"),
+                    home: g("attire.home_wear"),
                     arche: g("archetype"),
                     angry: g("emotional_behaviors.angry"),
                     happy: g("emotional_behaviors.happy"),
@@ -982,4 +1017,3 @@ ${d.lists.sex_habits.map(i => `    - ${i}`).join('\n')}
 </body>
 
 </html>
-     
